@@ -1,0 +1,73 @@
+#main {
+	width: 800px;
+	margin: 0px auto;
+	border: solid 1px #999;
+	padding: 5px;
+}
+#info {
+	text-align: center;
+	font-size: 20px;
+}
+#voc {
+	text-align: center;
+	font-size: 60px;
+	min-height: 100px;
+}
+#voc p:first-child {
+	margin-bottom: 0;
+	}
+#stats {
+	text-align: center;
+	font-family: monospace;
+	font-size: 12px;
+}
+#add {
+	text-align: center;
+	font-size: 10px;
+	padding-top: 10px;
+}
+#add table {
+	margin: 0px auto;
+}
+#add td:first-child {
+	text-align: right;
+	padding-right: 10px;
+}
+#add td:only-child {
+	text-align: center;
+}
+#voc_info {
+	font-size: 11px;
+	color: #555;
+	margin: 0;
+}
+#answer_form input {
+	font-size: 16px;
+}
+.green {
+	color: #0c0;
+}
+.red {
+	color: #d00;
+}
+.strike {
+	text-decoration: line-through;
+}
+#mode_indicator {
+	font-family: monospace;
+}
+strong {
+	font-weight: bold;
+}
+em {
+	font-style: italic;
+}
+th {
+	text-align: left;
+}
+#voc_list td, #voc_list th {
+	padding: 2px 5px 2px 5px;
+}
+#voc_list a {
+	text-decoration: none;
+}
