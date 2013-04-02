@@ -50,6 +50,9 @@
 .red {
 	color: #d00;
 }
+.grey {
+	color: #555;
+}
 .strike {
 	text-decoration: line-through;
 }

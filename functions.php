@@ -55,12 +55,21 @@ function get_voc_score($voc, $mode) {
 	return $score;
 	}
 
+function get_random_voc_and_index($vocs_array, $mode) {
+	$random_voc_index = rand(0, count($vocs_array)-1);
+	return array($random_voc_index, $vocs_array[$random_voc_index]);
+	}
+
 function get_bad_voc_and_index($vocs_array, $mode) {
+	# 20% for random pick
+	$chance = rand(0, 9);
+	if($chance > 7) return get_random_voc_and_index($vocs_array, $mode);
+
 	# calc limit score
 	$worst_score = 999;
 	foreach($vocs_array as $voc) {
 		$score = get_voc_score($voc, $mode);
-		if($scrore < $worst_score) $worst_score = $score;
+		if($score < $worst_score) $worst_score = $score;
 		}
 	$limit_score = ($worst_score < 0 ? 0 : $worst_score);
 

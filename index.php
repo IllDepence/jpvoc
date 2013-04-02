@@ -11,6 +11,8 @@ if(isset($_POST['add_voc']) && $_POST['add_voc'] == '1') {
 	$info_text = 'added '.$_POST['jp'].' to vocabulary';
 	}
 $vocs_array = get_vocs();
+$vocs_count_enabled = count($vocs_array);
+$vocs_count_disabled = count(get_vocs('disabled'));
 $mode = file_get_contents('mode');
 
 # toggle mode
@@ -27,9 +29,13 @@ if(isset($_POST['answer']) && isset($_POST['disp_lang']) && isset($_POST['voc_in
 	$idx = $_POST['voc_index'];
 	$given_answer = $_POST['answer'];
 	$right_answer = $vocs_array[$idx]->$wanted_lang;
-	$info_text = ($given_answer == $right_answer ? '<span class="green">correct</span>' : '<span class="red">wrong</span>&emsp;'.
-												$vocs_array[$idx]->$d_lang.' = '.$right_answer.
-												' (<span class="strike">'.$given_answer.'</span>)');
+	if($given_answer == $right_answer) {
+		$info_text = '<span class="green">correct</span>&emsp;'.$vocs_array[$idx]->$d_lang.' = '.$right_answer;
+		if(strlen($vocs_array[$idx]->i) > 0) $info_text .= ' <span class="grey">('.$vocs_array[$idx]->i.')</span>';
+		}
+	else {
+		$info_text = '<span class="red">wrong</span>&emsp;'.$vocs_array[$idx]->$d_lang.' = '.$right_answer.' (<span class="strike">'.$given_answer.'</span>)';
+		}
 	// note stats
 	$rw = ($given_answer == $right_answer ? 'r' : 'w');
 	$ft = ($d_lang=='jp' ? 'f' : 't');
@@ -131,7 +137,7 @@ function toggleMode() {
 		<form id="mode_form" method="POST" action="" style="display: none;">
 			<input type="hidden" name="toggle_mode" value="1" />
 		</form>
-		<p><a href="edit.php">edit vocabulary</a></p>
+		<p><a href="edit.php">edit vocabulary</a> <span class="grey">(&thinsp;<?php echo $vocs_count_enabled.'&thinsp;/&thinsp;'.$vocs_count_disabled; ?>&thinsp;)</span></p>
 		<p><a href="" onclick="toggleAdd();return false;">add word to vocabulary</a></p>
 		<form id="add_form" method="POST" action="" style="display: none;">
 			<table>
