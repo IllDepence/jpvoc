@@ -37,6 +37,47 @@ function add_voc($jp, $ger, $i="") {
 	file_put_contents('voc.json', $json_string);
 	}
 
+function get_voc_score($voc, $mode) {
+	$score = 0;
+	switch($mode) {
+		case 0:
+			$score = ($voc->rf - $voc->wf) + ($voc->rt - $voc->wt);
+			break;
+		case 1:
+			$score = ($voc->rf - $voc->wf);
+			break;
+		case 2:
+			$score = ($voc->rt - $voc->wt);
+			break;
+		default:
+			die('unsupported mode given');
+		}
+	return $score;
+	}
+
+function get_bad_voc_and_index($vocs_array, $mode) {
+	# calc limit score
+	$worst_score = 999;
+	foreach($vocs_array as $voc) {
+		$score = get_voc_score($voc, $mode);
+		if($scrore < $worst_score) $worst_score = $score;
+		}
+	$limit_score = ($worst_score < 0 ? 0 : $worst_score);
+
+	# choose index of voc to return
+	$voc_indexes_to_choose_from = array();
+	foreach($vocs_array as $idx => $voc) {
+		$score = get_voc_score($voc, $mode);
+		if($score <= $limit_score) {
+			$voc_indexes_to_choose_from[] = $idx;
+			}
+		}
+	$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
+	$chosen_index = $voc_indexes_to_choose_from[$helper_index];
+
+	return array($chosen_index, $vocs_array[$chosen_index]);
+	}
+
 function update_enabled_vocs($vocs_array) {
 	$json_string = file_get_contents('voc.json');
 	$vocs_obj = json_decode($json_string);

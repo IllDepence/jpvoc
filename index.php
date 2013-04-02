@@ -8,7 +8,7 @@ $info_text = "がんばって！";
 # add word
 if(isset($_POST['add_voc']) && $_POST['add_voc'] == '1') {
 	add_voc($_POST['jp'], $_POST['ger'], $_POST['i']);
-	$info_text = 'Added '.$_POST['jp'].' to vocabulary.';
+	$info_text = 'added '.$_POST['jp'].' to vocabulary';
 	}
 $vocs_array = get_vocs();
 $mode = file_get_contents('mode');
@@ -60,8 +60,12 @@ switch($mode) {
 	}
 # choose word to translate
 if($vocs_array) {
-	$curr_voc_index = rand(0, count($vocs_array)-1);
-	$curr_voc = $vocs_array[$curr_voc_index];
+	$cv_tmp_arr = get_bad_voc_and_index($vocs_array, $mode);
+	$curr_voc_index = $cv_tmp_arr[0];
+	$curr_voc = $cv_tmp_arr[1];
+
+	#$curr_voc_index = rand(0, count($vocs_array)-1);
+	#$curr_voc = $vocs_array[$curr_voc_index];
 
 	$voc_info = ($disp_lang=='jp') ? '' : $curr_voc->i;
 	$disp_text = $curr_voc->$disp_lang;
@@ -69,7 +73,7 @@ if($vocs_array) {
 else {
 	$curr_voc_index = -1;
 	$curr_voc = get_empty_voc();
-	$info_text = 'Vocabulary is empty.';
+	$info_text = 'vocabulary is empty';
 	$disp_text = '-';
 	$voc_info = '-';
 	}
@@ -110,7 +114,7 @@ function toggleMode() {
 		<p><?php echo $disp_text; ?></p>
 		<p id="voc_info"><?php echo $voc_info; ?>&nbsp;</p>
 		<form id="answer_form" method="POST" action="">
-			<input type="text" name="answer" autocomplete="off" />
+			<input id="answer" type="text" name="answer" autocomplete="off" />
 			<input type="hidden" name="disp_lang" value="<?php echo $disp_lang; ?>" />
 			<input type="hidden" name="voc_index" value="<?php echo $curr_voc_index; ?>" />
 		</form>
@@ -151,5 +155,8 @@ function toggleMode() {
 		</form>
 	<div>
 <div>
+<script>
+document.getElementById('answer').focus();
+</script>
 </body>
 </html>
