@@ -55,23 +55,33 @@ function get_voc_score($voc, $mode=0) {
 	return $score;
 	}
 
-function get_random_voc_and_index($vocs_array, $mode) {
-	$random_voc_index = rand(0, count($vocs_array)-1);
+function get_random_voc_and_index($vocs_array, $mode, $prev_voc_index=-1) {
+	# avoid asking for the same word twice in a row
+	do {
+		$random_voc_index = rand(0, count($vocs_array)-1);
+		} while($random_voc_index[0] == $prev_voc_index && count($vocs_array) > 1);
 	return array($random_voc_index, $vocs_array[$random_voc_index]);
 	}
 
-function get_bad_voc_and_index($vocs_array, $mode) {
-	# 20% for random pick
+function get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index=-1, $forced_limit_score=false) {
+	# 33.3% for random pick
 	$chance = rand(0, 9);
-	if($chance > 7) return get_random_voc_and_index($vocs_array, $mode);
-
-	# calc limit score
-	$worst_score = 999;
-	foreach($vocs_array as $voc) {
-		$score = get_voc_score($voc, $mode);
-		if($score < $worst_score) $worst_score = $score;
+	if($chance > 6) {
+		return get_random_voc_and_index($vocs_array, $mode, $prev_voc_index);
 		}
-	$limit_score = ($worst_score < 0 ? 0 : $worst_score);
+
+	# set limit score
+	if($forced_limit_score === false) {
+		$worst_score = 999;
+		foreach($vocs_array as $voc) {
+			$score = get_voc_score($voc, $mode);
+			if($score < $worst_score) $worst_score = $score;
+			}
+		$limit_score = ($worst_score < 0 ? 0 : $worst_score);
+		}
+	else {
+		$limit_score = $forced_limit_score;
+		}
 
 	# choose index of voc to return
 	$voc_indexes_to_choose_from = array();
@@ -81,8 +91,18 @@ function get_bad_voc_and_index($vocs_array, $mode) {
 			$voc_indexes_to_choose_from[] = $idx;
 			}
 		}
-	$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
-	$chosen_index = $voc_indexes_to_choose_from[$helper_index];
+
+	# avoid asking for the same word twice in a row
+	do {
+		if(count($voc_indexes_to_choose_from) > 1) {
+			$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
+			$chosen_index = $voc_indexes_to_choose_from[$helper_index];
+			}
+		else {
+			$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
+			return get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index, $limit_score+2);
+			}
+		} while($chosen_index == $prev_voc_index);
 
 	return array($chosen_index, $vocs_array[$chosen_index]);
 	}

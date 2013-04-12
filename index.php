@@ -4,6 +4,7 @@ include 'functions.php';
 
 initialize();
 $info_text = "がんばって！";
+$prev_voc_index = -1;
 
 # add word
 if(isset($_POST['add_voc']) && $_POST['add_voc'] == '1') {
@@ -26,23 +27,23 @@ if(isset($_POST['answer']) && isset($_POST['disp_lang']) && isset($_POST['voc_in
 	// check & answer
 	$d_lang = $_POST['disp_lang'];
 	$wanted_lang = ($d_lang=='jp' ? 'ger' : 'jp');
-	$idx = $_POST['voc_index'];
+	$prev_voc_index = $_POST['voc_index'];
 	$given_answer = $_POST['answer'];
-	$right_answer = $vocs_array[$idx]->$wanted_lang;
+	$right_answer = $vocs_array[$prev_voc_index]->$wanted_lang;
 	if($given_answer == $right_answer) {
-		$info_text = '<span class="green">correct</span>&emsp;'.$vocs_array[$idx]->$d_lang.' = '.$right_answer;
-		if(strlen($vocs_array[$idx]->i) > 0) $info_text .= ' <span class="grey">('.$vocs_array[$idx]->i.')</span>';
+		$info_text = '<span class="green">correct</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.$right_answer;
+		if(strlen($vocs_array[$prev_voc_index]->i) > 0) $info_text .= ' <span class="grey">('.$vocs_array[$prev_voc_index]->i.')</span>';
 		}
 	else {
-		$info_text = '<span class="red">wrong</span>&emsp;'.$vocs_array[$idx]->$d_lang.' = '.$right_answer.' (<span class="strike">'.$given_answer.'</span>)';
+		$info_text = '<span class="red">wrong</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.$right_answer.' (<span class="strike">'.$given_answer.'</span>)';
 		}
 	// note stats
 	$rw = ($given_answer == $right_answer ? 'r' : 'w');
 	$ft = ($d_lang=='jp' ? 'f' : 't');
 	$attr = $rw.$ft;
-	$tmp = $vocs_array[$idx]->$attr;
+	$tmp = $vocs_array[$prev_voc_index]->$attr;
 	$tmp++;
-	$vocs_array[$idx]->$attr = $tmp;
+	$vocs_array[$prev_voc_index]->$attr = $tmp;
 	
 	update_enabled_vocs($vocs_array);
 	}
@@ -66,12 +67,9 @@ switch($mode) {
 	}
 # choose word to translate
 if($vocs_array) {
-	$cv_tmp_arr = get_bad_voc_and_index($vocs_array, $mode);
+	$cv_tmp_arr = get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index);
 	$curr_voc_index = $cv_tmp_arr[0];
 	$curr_voc = $cv_tmp_arr[1];
-
-	#$curr_voc_index = rand(0, count($vocs_array)-1);
-	#$curr_voc = $vocs_array[$curr_voc_index];
 
 	$voc_info = ($disp_lang=='jp') ? '' : $curr_voc->i;
 	$disp_text = $curr_voc->$disp_lang;
