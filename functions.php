@@ -37,7 +37,7 @@ function add_voc($jp, $ger, $i="") {
 	file_put_contents('voc.json', $json_string);
 	}
 
-function get_voc_score($voc, $mode) {
+function get_voc_score($voc, $mode=0) {
 	$score = 0;
 	switch($mode) {
 		case 0:
@@ -145,6 +145,13 @@ function change_voc_state($idx, $state_from) {
 	
 	$json_string = json_encode($vocs_obj);
 	file_put_contents('voc.json', $json_string);
+	}
+
+function cmp_vocs_by_score($a, $b) {
+	$a = get_voc_score($a);
+	$b = get_voc_score($b);
+	if ($a == $b) return 0;
+	return (($a > $b) ? -1 : 1);
 	}
 
 ?>

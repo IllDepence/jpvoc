@@ -24,7 +24,7 @@ $vocs_obj = get_vocs('object');
 </head>
 <body>
 <div id="main">
-	<p style="text-align: center;"><a href="index.php">back</a></p>
+	<p style="text-align: center;"><a href="index.php">back</a> / <a href="stats.php">stats</a></p>
 	<?php
 		foreach(array('enabled', 'disabled') as $state) {
 			echo '<h3>'.$state.'</h3>';
