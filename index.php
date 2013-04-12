@@ -8,12 +8,13 @@ $prev_voc_index = -1;
 
 # add word
 if(isset($_POST['add_voc']) && $_POST['add_voc'] == '1') {
-	add_voc($_POST['jp'], $_POST['ger'], $_POST['i']);
+	add_voc($_POST['jp'], $_POST['ger'], $_POST['i'], $_POST['kanji']);
 	$info_text = 'added '.$_POST['jp'].' to vocabulary';
 	}
 $vocs_array = get_vocs();
-$vocs_count_enabled = count($vocs_array);
-$vocs_count_disabled = count(get_vocs('disabled'));
+$vocs_disabled = get_vocs('disabled');
+$vocs_count_enabled = ($vocs_array ? count($vocs_array) : 0);
+$vocs_count_disabled = ($vocs_disabled ? count($vocs_disabled) : 0);
 $mode = file_get_contents('mode');
 
 # toggle mode
@@ -71,8 +72,16 @@ if($vocs_array) {
 	$curr_voc_index = $cv_tmp_arr[0];
 	$curr_voc = $cv_tmp_arr[1];
 
-	$voc_info = ($disp_lang=='jp') ? '' : $curr_voc->i;
 	$disp_text = $curr_voc->$disp_lang;
+	if($disp_lang == 'jp') {
+		$voc_info = '';
+		$kanji = (strlen($curr_voc->kanji)>0 ? $curr_voc->kanji : '<em class="grey">-</em>' );
+		$disp_text = '<span title="show kanji" onclick="showKanji();">'.$disp_text.'</span>';
+		}
+	else {
+		$voc_info = $curr_voc->i;
+		$kanji = '';
+		}
 	}
 else {
 	$curr_voc_index = -1;
@@ -107,6 +116,22 @@ function toggleAdd() {
 function toggleMode() {
 	document.getElementById('mode_form').submit();
 	}
+
+// kanji
+function showKanji() {
+	document.getElementById('kanji').style.display = 'block';
+	}
+function hideKanji() {
+	document.getElementById('kanji').style.display = 'none';
+	}
+function kanjiBlockLetter() {
+	document.getElementById('kanjispan').classList.remove('kanjistrokeorder');
+	document.getElementById('kanjispan').classList.add('kanjiblockletter');
+	}
+function kanjiStrokeOrder() {
+	document.getElementById('kanjispan').classList.remove('kanjiblockletter');
+	document.getElementById('kanjispan').classList.add('kanjistrokeorder');
+	}
 </script>
 </head>
 <body>
@@ -117,6 +142,11 @@ function toggleMode() {
 	<div id="voc">
 		<p><?php echo $disp_text; ?></p>
 		<p id="voc_info"><?php echo $voc_info; ?>&nbsp;</p>
+		<div id="kanji" title="hide kanji" onclick="hideKanji();" onmouseout="kanjiBlockLetter();" onmouseover="kanjiStrokeOrder();">
+			<span class="kanjiblockletter">&thinsp;</span>
+			<span id="kanjispan" class="kanjistrokeorder"><?php echo $kanji; ?></span>
+			<span class="kanjiblockletter">&thinsp;</span>
+		</div>
 		<form id="answer_form" method="POST" action="">
 			<input id="answer" type="text" name="answer" autocomplete="off" />
 			<input type="hidden" name="disp_lang" value="<?php echo $disp_lang; ?>" />
@@ -140,8 +170,12 @@ function toggleMode() {
 		<form id="add_form" method="POST" action="" style="display: none;">
 			<table>
 				<tr>
-					<td><p>japanese</p></td>
+					<td><p>kana</p></td>
 					<td><input type="text" name="jp" autocomplete="off" /></td>
+				</tr>
+				<tr>
+					<td><p>kanji</p></td>
+					<td><input type="text" name="kanji" autocomplete="off" /></td>
 				</tr>
 				<tr>
 					<td><p>german</td>

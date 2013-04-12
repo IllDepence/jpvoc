@@ -18,12 +18,13 @@ function initialize() {
 		}
 }
 
-function add_voc($jp, $ger, $i="") {
+function add_voc($jp, $ger, $i="", $kanji="") {
 	$json_string = file_get_contents('voc.json');
 	$vocs_obj = json_decode($json_string);
 
 	$new_voc_obj = new stdClass();
-	$new_voc_obj->jp = $jp; 	# japanese
+	$new_voc_obj->jp = $jp; 	# kana
+	$new_voc_obj->kanji = $kanji; 	# kanji
 	$new_voc_obj->ger = $ger; 	# german
 	$new_voc_obj->i = $i;		# additional info
 	$new_voc_obj->rf = 0;		# translated right from japanese
@@ -55,6 +56,28 @@ function get_voc_score($voc, $mode=0) {
 	return $score;
 	}
 
+function get_voc_ratio($voc, $mode=0) {
+	$right = 0;
+	$count = 0;
+	switch($mode) {
+		case 0:
+			$right = $voc->rf + $voc->rt;
+			$count = $voc->rf + $voc->wf + $voc->rt + $voc->wt;
+			break;
+		case 1:
+			$right = $voc->rf;
+			$count = $voc->rf + $voc->wf;
+			break;
+		case 2:
+			$right = $voc->rt;
+			$count = $voc->rt + $voc->wt;
+			break;
+		default:
+			die('unsupported mode given');
+		}
+	return $right/($count ? $count : 1);
+	}
+
 function get_random_voc_and_index($vocs_array, $mode, $prev_voc_index=-1) {
 	# avoid asking for the same word twice in a row
 	do {
@@ -66,7 +89,7 @@ function get_random_voc_and_index($vocs_array, $mode, $prev_voc_index=-1) {
 function get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index=-1, $forced_limit_score=false) {
 	# 33.3% for random pick
 	$chance = rand(0, 9);
-	if($chance > 6) {
+	if($chance > 6 || true) {
 		return get_random_voc_and_index($vocs_array, $mode, $prev_voc_index);
 		}
 
@@ -167,9 +190,9 @@ function change_voc_state($idx, $state_from) {
 	file_put_contents('voc.json', $json_string);
 	}
 
-function cmp_vocs_by_score($a, $b) {
-	$a = get_voc_score($a);
-	$b = get_voc_score($b);
+function cmp_vocs_by_ratio($a, $b) {
+	$a = get_voc_ratio($a);
+	$b = get_voc_ratio($b);
 	if ($a == $b) return 0;
 	return (($a > $b) ? -1 : 1);
 	}

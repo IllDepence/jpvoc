@@ -4,7 +4,7 @@ include 'functions.php';
 
 $vocs_obj = get_vocs('object');
 $vocs_all = array_merge($vocs_obj->enabled, $vocs_obj->disabled);
-usort($vocs_all, 'cmp_vocs_by_score');
+usort($vocs_all, 'cmp_vocs_by_ratio');
 
 ?>
 
@@ -19,10 +19,11 @@ usort($vocs_all, 'cmp_vocs_by_score');
 	<p style="text-align: center;"><a href="index.php">back</a> / <a href="edit.php">edit</a></p>
 		<table id="voc_list">
 			<tr>
-				<th>japanese</th>
+				<th>kana</th>
+				<th>kanji</th>
 				<th>german</th>
 				<th>info</th>
-				<th>Σ</th>
+				<th>right</th>
 				<th>de -&gt; jp</th>
 				<th>jp -&gt; de</th>
 			</tr>
@@ -30,9 +31,10 @@ usort($vocs_all, 'cmp_vocs_by_score');
 		foreach($vocs_all as $voc) {
 			echo '<tr>'.
 				'<td>'.$voc->jp.'</td>'.
+				'<td>'.$voc->kanji.'</td>'.
 				'<td>'.$voc->ger.'</td>'.
 				'<td>'.$voc->i.'</td>'.
-				'<td>'.get_voc_score($voc).'</td>'.
+				'<td>'.round(get_voc_ratio($voc)*100).'%</td>'.
 				'<td><span class="green">'.$voc->rt.'</span> / <span class="red">'.$voc->wt.'</span></td>'.
 				'<td><span class="green">'.$voc->rf.'</span> / <span class="red">'.$voc->wf.'</span></td>';
 				'</tr>';

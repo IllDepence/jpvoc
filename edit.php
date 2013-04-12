@@ -27,16 +27,17 @@ $vocs_obj = get_vocs('object');
 	<p style="text-align: center;"><a href="index.php">back</a> / <a href="stats.php">stats</a></p>
 	<?php
 		foreach(array('enabled', 'disabled') as $state) {
-			echo '<h3>'.$state.'</h3>';
+			echo '<h3 class="section">'.$state.'</h3>';
 			if($vocs_obj->$state) {
 				$change = ($state == 'enabled' ? 'disable' : 'enable');
 				$symbol = ($state == 'enabled' ? '&darr;' : '&uarr;');
-				echo '<table id="voc_list">';
-				echo '<tr><th>index</th><th>japanese</th><th>german</th><th>info</th><th>'.$change.'</th><th>delete</th></tr>';
+				echo '<table id="voc_edit_list">';
+				echo '<tr><th>index</th><th>kana</th><th>kanji</th><th>german</th><th>info</th><th>'.$change.'</th><th>delete</th></tr>';
 				foreach($vocs_obj->$state as $idx => $voc_obj) {
 					echo '<tr>'.
 						'<td>'.$idx.'</td>'.
 						'<td>'.$voc_obj->jp.'</td>'.
+						'<td>'.$voc_obj->kanji.'</td>'.
 						'<td>'.$voc_obj->ger.'</td>'.
 						'<td>'.$voc_obj->i.'</td>'.
 						'<td><a href="?cs='.$idx.'&state='.$state.'">'.$symbol.'</a></td>'.
@@ -50,6 +51,6 @@ $vocs_obj = get_vocs('object');
 				}
 			}
 	?>
-<div>
+	<div>
 </body>
 </html>
