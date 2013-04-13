@@ -89,7 +89,7 @@ function get_random_voc_and_index($vocs_array, $mode, $prev_voc_index=-1) {
 function get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index=-1, $forced_limit_score=false) {
 	# 33.3% for random pick
 	$chance = rand(0, 9);
-	if($chance > 6 || true) {
+	if($chance > 6) {
 		return get_random_voc_and_index($vocs_array, $mode, $prev_voc_index);
 		}
 
@@ -195,6 +195,13 @@ function cmp_vocs_by_ratio($a, $b) {
 	$b = get_voc_ratio($b);
 	if ($a == $b) return 0;
 	return (($a > $b) ? -1 : 1);
+	}
+
+function kanji_if_kana($voc, $disp_lang, $kanji_id) {
+		if($disp_lang == 'jp')
+			return '<span title="show kanji" onclick="showById(\''.$kanji_id.'\');">'.$voc->jp.'</span>';
+		else
+			return $voc->ger;
 	}
 
 ?>

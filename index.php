@@ -31,12 +31,13 @@ if(isset($_POST['answer']) && isset($_POST['disp_lang']) && isset($_POST['voc_in
 	$prev_voc_index = $_POST['voc_index'];
 	$given_answer = $_POST['answer'];
 	$right_answer = $vocs_array[$prev_voc_index]->$wanted_lang;
+	$prevkanji = (strlen($vocs_array[$prev_voc_index]->kanji)>0 ? $vocs_array[$prev_voc_index]->kanji : '<em class="grey">-</em>' );
 	if($given_answer == $right_answer) {
-		$info_text = '<span class="green">correct</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.$right_answer;
+		$info_text = '<span class="green">correct</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.kanji_if_kana($vocs_array[$prev_voc_index], $wanted_lang, 'prevkanji');
 		if(strlen($vocs_array[$prev_voc_index]->i) > 0) $info_text .= ' <span class="grey">('.$vocs_array[$prev_voc_index]->i.')</span>';
 		}
 	else {
-		$info_text = '<span class="red">wrong</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.$right_answer.' (<span class="strike">'.$given_answer.'</span>)';
+		$info_text = '<span class="red">wrong</span>&emsp;'.$vocs_array[$prev_voc_index]->$d_lang.' = '.kanji_if_kana($vocs_array[$prev_voc_index], $wanted_lang, 'prevkanji').' (<span class="strike">'.$given_answer.'</span>)';
 		}
 	// note stats
 	$rw = ($given_answer == $right_answer ? 'r' : 'w');
@@ -72,15 +73,14 @@ if($vocs_array) {
 	$curr_voc_index = $cv_tmp_arr[0];
 	$curr_voc = $cv_tmp_arr[1];
 
-	$disp_text = $curr_voc->$disp_lang;
+	$disp_text = kanji_if_kana($curr_voc, $disp_lang, 'currkanji');
 	if($disp_lang == 'jp') {
 		$voc_info = '';
-		$kanji = (strlen($curr_voc->kanji)>0 ? $curr_voc->kanji : '<em class="grey">-</em>' );
-		$disp_text = '<span title="show kanji" onclick="showKanji();">'.$disp_text.'</span>';
+		$currkanji = (strlen($curr_voc->kanji)>0 ? $curr_voc->kanji : '<em class="grey">-</em>' );
 		}
 	else {
 		$voc_info = $curr_voc->i;
-		$kanji = '';
+		$currkanji = '';
 		}
 	}
 else {
@@ -118,19 +118,19 @@ function toggleMode() {
 	}
 
 // kanji
-function showKanji() {
-	document.getElementById('kanji').style.display = 'block';
+function showById(i) {
+	document.getElementById(i).style.display = 'block';
 	}
-function hideKanji() {
-	document.getElementById('kanji').style.display = 'none';
+function hideById(i) {
+	document.getElementById(i).style.display = 'none';
 	}
-function kanjiBlockLetter() {
-	document.getElementById('kanjispan').classList.remove('kanjistrokeorder');
-	document.getElementById('kanjispan').classList.add('kanjiblockletter');
+function kanjiBlockLetterById(i) {
+	document.getElementById(i).classList.remove('kanjistrokeorder');
+	document.getElementById(i).classList.add('kanjiblockletter');
 	}
-function kanjiStrokeOrder() {
-	document.getElementById('kanjispan').classList.remove('kanjiblockletter');
-	document.getElementById('kanjispan').classList.add('kanjistrokeorder');
+function kanjiStrokeOrderById(i) {
+	document.getElementById(i).classList.remove('kanjiblockletter');
+	document.getElementById(i).classList.add('kanjistrokeorder');
 	}
 </script>
 </head>
@@ -138,13 +138,18 @@ function kanjiStrokeOrder() {
 <div id="main">
 	<div id="info">
 		<p><?php echo $info_text; ?></p>
+		<div id="prevkanji" class="kanji" title="hide kanji" onclick="hideById('prevkanji');" onmouseout="kanjiBlockLetterById('prevkanjispan');" onmouseover="kanjiStrokeOrderById('prevkanjispan');">
+			<span class="kanjiblockletter">&thinsp;</span>
+			<span id="prevkanjispan" class="kanjistrokeorder"><?php echo $prevkanji; ?></span>
+			<span class="kanjiblockletter">&thinsp;</span>
+		</div>
 	</div>
 	<div id="voc">
 		<p><?php echo $disp_text; ?></p>
 		<p id="voc_info"><?php echo $voc_info; ?>&nbsp;</p>
-		<div id="kanji" title="hide kanji" onclick="hideKanji();" onmouseout="kanjiBlockLetter();" onmouseover="kanjiStrokeOrder();">
+		<div id="currkanji" class="kanji" title="hide kanji" onclick="hideById('currkanji');" onmouseout="kanjiBlockLetterById('currkanjispan');" onmouseover="kanjiStrokeOrderById('currkanjispan');">
 			<span class="kanjiblockletter">&thinsp;</span>
-			<span id="kanjispan" class="kanjistrokeorder"><?php echo $kanji; ?></span>
+			<span id="currkanjispan" class="kanjistrokeorder"><?php echo $currkanji; ?></span>
 			<span class="kanjiblockletter">&thinsp;</span>
 		</div>
 		<form id="answer_form" method="POST" action="">
