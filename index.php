@@ -4,7 +4,6 @@ include 'functions.php';
 
 initialize();
 $info_text = "がんばって！";
-$prev_voc_index = -1;
 
 # add word
 if(isset($_POST['add_voc']) && $_POST['add_voc'] == '1') {
@@ -69,7 +68,7 @@ switch($mode) {
 	}
 # choose word to translate
 if($vocs_array) {
-	$cv_tmp_arr = get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index);
+	$cv_tmp_arr = get_bad_voc_and_index($vocs_array, $mode);
 	$curr_voc_index = $cv_tmp_arr[0];
 	$curr_voc = $cv_tmp_arr[1];
 

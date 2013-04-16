@@ -16,6 +16,12 @@ function initialize() {
 		$success = file_put_contents('mode', $mode_string);
 		if($success === false) die('Unable to initialize.');
 		}
+	$le = file_exists('last_vocs.json');
+	if(!$le) {
+		$last_vocs_indexes = array();
+		$success = file_put_contents('last_vocs.json', $last_vocs_indexes);
+		if($success === false) die('Unable to initialize.');
+		}
 }
 
 function add_voc($jp, $ger, $i="", $kanji="") {
@@ -78,19 +84,43 @@ function get_voc_ratio($voc, $mode=0) {
 	return $right/($count ? $count : 1);
 	}
 
-function get_random_voc_and_index($vocs_array, $mode, $prev_voc_index=-1) {
-	# avoid asking for the same word twice in a row
+function is_in_last_vocs($voc_index) {
+	$json_string = file_get_contents('last_vocs.json');
+	$last_vocs_indexes = json_decode($json_string);
+	if(!$last_vocs_indexes) return false;
+	return in_array($voc_index, $last_vocs_indexes);
+	}
+
+function add_to_last_vocs($voc_index) {
+	$repetition_prevention = 5;
+	$json_string = file_get_contents('last_vocs.json');
+	$maybe_null = json_decode($json_string);
+	$last_vocs_indexes = ($maybe_null == NULL ? array('I\'m PHP and I\'m stupid.') : $maybe_null);
+	if(count($last_vocs_indexes) < $repetition_prevention) {
+		array_unshift($last_vocs_indexes, $voc_index);
+		}
+	else {
+		array_pop($last_vocs_indexes);
+		array_unshift($last_vocs_indexes, $voc_index);
+		}
+	$json_string = json_encode($last_vocs_indexes);
+	file_put_contents('last_vocs.json', $json_string);
+	}
+
+function get_random_voc_and_index($vocs_array, $mode) {
+	# avoid asking for a word after it appeared as one of the last <repetition_prevention> words
 	do {
 		$random_voc_index = rand(0, count($vocs_array)-1);
-		} while($random_voc_index[0] == $prev_voc_index && count($vocs_array) > 1);
+		} while(is_in_last_vocs($random_voc_index) && count($vocs_array) > 1);
+	add_to_last_vocs($random_voc_index);
 	return array($random_voc_index, $vocs_array[$random_voc_index]);
 	}
 
-function get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index=-1, $forced_limit_score=false) {
+function get_bad_voc_and_index($vocs_array, $mode, $forced_limit_score=false) {
 	# 33.3% for random pick
 	$chance = rand(0, 9);
 	if($chance > 6) {
-		return get_random_voc_and_index($vocs_array, $mode, $prev_voc_index);
+		return get_random_voc_and_index($vocs_array, $mode);
 		}
 
 	# set limit score
@@ -115,18 +145,19 @@ function get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index=-1, $forced_l
 			}
 		}
 
-	# avoid asking for the same word twice in a row
+	# avoid asking for a word after it appeared as one of the last <repetition_prevention> words
 	do {
-		if(count($voc_indexes_to_choose_from) > 1) {
+		if(count($voc_indexes_to_choose_from) > 5) {
 			$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
 			$chosen_index = $voc_indexes_to_choose_from[$helper_index];
 			}
 		else {
 			$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
-			return get_bad_voc_and_index($vocs_array, $mode, $prev_voc_index, $limit_score+2);
+			return get_bad_voc_and_index($vocs_array, $mode, $limit_score+2);
 			}
-		} while($chosen_index == $prev_voc_index);
+		} while(is_in_last_vocs($chosen_index));
 
+	add_to_last_vocs($chosen_index);
 	return array($chosen_index, $vocs_array[$chosen_index]);
 	}
 
