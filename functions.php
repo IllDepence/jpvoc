@@ -69,14 +69,17 @@ function get_voc_ratio($voc, $mode=0) {
 		case 0:
 			$right = $voc->rf + $voc->rt;
 			$count = $voc->rf + $voc->wf + $voc->rt + $voc->wt;
+			if($count < 10) return 0;
 			break;
 		case 1:
 			$right = $voc->rf;
 			$count = $voc->rf + $voc->wf;
+			if($count < 5) return 0;
 			break;
 		case 2:
 			$right = $voc->rt;
 			$count = $voc->rt + $voc->wt;
+			if($count < 5) return 0;
 			break;
 		default:
 			die('unsupported mode given');
@@ -153,7 +156,7 @@ function get_bad_voc_and_index($vocs_array, $mode, $forced_limit_score=false) {
 			}
 		else {
 			$helper_index = rand(0, count($voc_indexes_to_choose_from)-1);
-			return get_bad_voc_and_index($vocs_array, $mode, $limit_score+2);
+			return get_bad_voc_and_index($vocs_array, $mode, $limit_score+5);
 			}
 		} while(is_in_last_vocs($chosen_index));
 
